@@ -80,7 +80,7 @@ func (manager *Manager) Append(filename string) BlockID {
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
 
-	newBlockNum := manager.length(filename)
+	newBlockNum := manager.Length(filename)
 	blockID := NewBlockID(filename, newBlockNum)
 	buf := make([]byte, manager.blockSize)
 
@@ -117,7 +117,7 @@ func (manager *Manager) getFile(filename string) *os.File {
 }
 
 // returns the total blocks in file
-func (manager *Manager) length(filename string) int {
+func (manager *Manager) Length(filename string) int {
 	file := manager.getFile(filename)
 
 	fileInfo, err := file.Stat()
