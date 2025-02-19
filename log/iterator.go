@@ -43,7 +43,7 @@ func (it *Iterator) Next() []byte {
 	record := it.page.GetBytes(it.currentPos)
 
 	// move the iterator forward by
-	it.currentPos += 4 + len(record)
+	it.currentPos += file.IntBytes + len(record)
 	return record
 }
 

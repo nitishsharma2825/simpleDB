@@ -59,10 +59,10 @@ func (lm *Manager) Append(logRecord []byte) int {
 	recordSize := len(logRecord)
 
 	// data + size(data)
-	bytesNeeded := recordSize + 4
+	bytesNeeded := recordSize + file.IntBytes
 
 	// if bytes needed + page header > space left
-	if bytesNeeded+4 > boundary {
+	if bytesNeeded+file.IntBytes > boundary {
 		lm.flush()
 		lm.AppendNewBlock()
 		boundary = lm.logPage.GetInt(0)
@@ -81,10 +81,10 @@ func (lm *Manager) Append(logRecord []byte) int {
 
 func (lm *Manager) AppendNewBlock() {
 	// append an empty disk block to end of file
-	lm.currentBlock = lm.fm.Append(lm.logFile)
 	// set the starting offset in page
-	lm.logPage.SetInt(0, lm.fm.BlockSize())
 	// write to disk
+	lm.currentBlock = lm.fm.Append(lm.logFile)
+	lm.logPage.SetInt(0, lm.fm.BlockSize())
 	lm.fm.Write(lm.currentBlock, lm.logPage)
 }
 
@@ -96,10 +96,7 @@ func (lm *Manager) Flush(lsn int) {
 
 func (lm *Manager) Iterator() *Iterator {
 	lm.flush()
-	return &Iterator{
-		fm:      lm.fm,
-		blockId: lm.currentBlock,
-	}
+	return NewIterator(lm.fm, lm.currentBlock)
 }
 
 // writes the contents of the logPage into the current block

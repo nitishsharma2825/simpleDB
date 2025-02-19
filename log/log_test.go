@@ -15,8 +15,9 @@ func TestLog(t *testing.T) {
 	const blockSize = 400
 
 	t.Cleanup(func() {
-		path := path.Join(testDataFolder, logFile)
-		os.Remove(path)
+		p := path.Join(testDataFolder, logFile)
+		os.Remove(p)
+		os.Remove(path.Dir(p))
 	})
 
 	fileManager := file.NewFileManager(testDataFolder, blockSize)
@@ -85,7 +86,7 @@ func populateLogManager(t *testing.T, lm *Manager, start int, end int) {
 
 func createLogRecord(key string, val int) []byte {
 	keyLen := file.MaxLength(len(key))
-	recordBuf := make([]byte, keyLen+4)
+	recordBuf := make([]byte, keyLen+file.IntBytes)
 	page := file.NewPageWithSlice(recordBuf)
 	page.SetString(0, key)
 	page.SetInt(keyLen, val)
