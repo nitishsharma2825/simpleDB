@@ -58,16 +58,19 @@ func (b *Buffer) ModifyingTxn() int {
 }
 
 func (b *Buffer) AssignToBlock(blockId file.BlockID) {
+	// flush current contents
 	b.flush()
+	// Read the new block into the page
 	b.blockId = blockId
 	b.fm.Read(b.blockId, b.contents)
 	b.pins = 0
 }
 
-// Writes the buffer to its disk block if it is dirty
 func (b *Buffer) flush() {
 	if b.txnum >= 0 {
+		// Flush the log page with this lsn
 		b.lm.Flush(b.lsn)
+		// Write the buffer to its disk block if it is dirty
 		b.fm.Write(b.blockId, b.contents)
 		b.txnum = -1
 	}

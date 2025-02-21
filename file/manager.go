@@ -1,6 +1,7 @@
 package file
 
 import (
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -61,7 +62,7 @@ func (manager *Manager) Read(blockID BlockID, page *Page) {
 	defer manager.mu.Unlock()
 
 	file := manager.getFile(blockID.FileName())
-	if _, err := file.ReadAt(page.Contents(), int64(blockID.BlockNumber())*int64(manager.blockSize)); err != nil {
+	if _, err := file.ReadAt(page.Contents(), int64(blockID.BlockNumber())*int64(manager.blockSize)); err != io.EOF && err != nil {
 		panic(err)
 	}
 }

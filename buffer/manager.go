@@ -1,7 +1,6 @@
 package buffer
 
 import (
-	"errors"
 	"sync"
 	"time"
 
@@ -11,13 +10,12 @@ import (
 
 // Manages the pinning and unpinning of buffers to blocks
 
-const MAX_TIME_MS = 10000 // 10s
+const MAX_TIME = 10 * time.Second // 10s
 
 type Manager struct {
 	bufferPool   []*Buffer
 	numAvailable int
 	mu           sync.Mutex
-	applyCond    *sync.Cond
 }
 
 func NewBufferManager(fm *file.Manager, lm *log.Manager, numBuffs int) *Manager {
@@ -44,9 +42,9 @@ func (bm *Manager) FlushAll(txnum int) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 
-	for idx := range bm.bufferPool {
-		if bm.bufferPool[idx].ModifyingTxn() == txnum {
-			bm.bufferPool[idx].flush()
+	for _, buf := range bm.bufferPool {
+		if buf.ModifyingTxn() == txnum {
+			buf.flush()
 		}
 	}
 }
@@ -58,34 +56,38 @@ func (bm *Manager) UnPin(buff *Buffer) {
 	buff.UnPin()
 	if !buff.IsPinned() {
 		bm.numAvailable++
-		// notify all waiting txns that a buffer is free
-		bm.applyCond.Broadcast()
 	}
 }
 
+// tries to pin a buffer to the given block
+// if no buffer is available, clients will be put on wait until timeout
+// if timeout is over, an ErrAbortException is returned to client
 func (bm *Manager) Pin(blockId file.BlockID) (*Buffer, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 
-	curTime := time.Now()
+	startTime := time.Now()
 	buff := bm.TryToPin(blockId)
 	for {
-		if buff == nil && !bm.WaitingTooLong(curTime) {
-			bm.applyCond.Wait()
-		} else {
+		if buff != nil {
 			break
 		}
+
+		if bm.WaitingTooLong(startTime) {
+			return nil, ErrBufferAbort
+		}
+
+		// with time.Sleep, the runtime scheduler will allocate execution time to another goroutine
+		// improve? with condition variables
+		time.Sleep(time.Millisecond)
 		buff = bm.TryToPin(blockId)
-	}
-	if buff == nil {
-		return nil, errors.New("BufferAbortException")
 	}
 
 	return buff, nil
 }
 
 func (bm *Manager) WaitingTooLong(startTime time.Time) bool {
-	return time.Since(startTime).Milliseconds() > MAX_TIME_MS
+	return time.Since(startTime).Seconds() > MAX_TIME.Seconds()
 }
 
 func (bm *Manager) TryToPin(blockId file.BlockID) *Buffer {
@@ -104,19 +106,22 @@ func (bm *Manager) TryToPin(blockId file.BlockID) *Buffer {
 	return buff
 }
 
+// tries to find if a buffer exists which is already assigned this block, else nil
 func (bm *Manager) FindExistingBuffer(blockId file.BlockID) *Buffer {
-	for idx := range bm.bufferPool {
-		if bm.bufferPool[idx].Block().Equals(blockId) {
-			return bm.bufferPool[idx]
+	for _, buf := range bm.bufferPool {
+		if buf.Block().Equals(blockId) {
+			return buf
 		}
 	}
 	return nil
 }
 
+// chooses for the 1st unpinned buffer in the buffer pool, returns nil if no buffer is available
+// Improve with Algo's like LRU-K
 func (bm *Manager) ChooseUnpinnedBuffer() *Buffer {
-	for idx := range bm.bufferPool {
-		if !bm.bufferPool[idx].IsPinned() {
-			return bm.bufferPool[idx]
+	for _, buf := range bm.bufferPool {
+		if !buf.IsPinned() {
+			return buf
 		}
 	}
 	return nil
