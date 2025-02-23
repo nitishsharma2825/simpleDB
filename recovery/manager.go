@@ -69,7 +69,7 @@ func (rm *RecoveryManager) SetInt(buff *buffer.Buffer, offset int, newVal int) i
 /*
 Write a setstring record to the log and return its lsn
 */
-func (rm *RecoveryManager) SetString(buff *buffer.Buffer, offset int, newVal int) int {
+func (rm *RecoveryManager) SetString(buff *buffer.Buffer, offset int, newVal string) int {
 	oldVal := buff.Contents().GetString(offset)
 	blockId := buff.Block()
 	return WriteSetStringRecordToLog(rm.lm, rm.txnum, blockId, offset, oldVal)

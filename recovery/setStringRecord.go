@@ -42,8 +42,10 @@ func (ssr *SetStringRecord) TxNumber() int {
 	return ssr.txnum
 }
 
-// TODO: Implement it with transaction
 func (ssr *SetStringRecord) Undo(txn *tx.Transaction) {
+	txn.Pin(ssr.blockId)
+	txn.SetString(ssr.blockId, ssr.offset, ssr.val, false) // don't log the undo
+	txn.Unpin(ssr.blockId)
 }
 
 func (ssr *SetStringRecord) ToString() string {

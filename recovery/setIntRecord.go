@@ -42,8 +42,11 @@ func (sir *SetIntRecord) TxNumber() int {
 	return sir.txnum
 }
 
-// TODO: Implement it with transaction
-func (sir *SetIntRecord) Undo(txn *tx.Transaction) {}
+func (sir *SetIntRecord) Undo(txn *tx.Transaction) {
+	txn.Pin(sir.blockId)
+	txn.SetInt(sir.blockId, sir.offset, sir.val, false) // don't log the undo
+	txn.Unpin(sir.blockId)
+}
 
 func (sir *SetIntRecord) ToString() string {
 	return fmt.Sprintf("<SETINT %d %v %d %d>", sir.txnum, sir.blockId.String(), sir.offset, sir.val)
