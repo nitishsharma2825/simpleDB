@@ -9,10 +9,8 @@ import (
 	"fmt"
 
 	"github.com/nitishsharma2825/simpleDB/buffer"
-	"github.com/nitishsharma2825/simpleDB/concurrency"
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/recovery"
 )
 
 /*
@@ -25,8 +23,8 @@ var nextTxNum = 0
 var END_OF_FILE = -1
 
 type Transaction struct {
-	rm        *recovery.RecoveryManager
-	cm        *concurrency.ConcurrencyManager
+	rm        *RecoveryManager
+	cm        *ConcurrencyManager
 	bm        *buffer.Manager
 	fm        *file.Manager
 	txnum     int
@@ -44,8 +42,8 @@ func NewTransaction(fm *file.Manager, lm *log.Manager, bm *buffer.Manager) *Tran
 		myBuffers: NewBufferList(bm),
 	}
 
-	txn.rm = recovery.NewRecoveryManager(txn, txn.txnum, lm, bm)
-	txn.cm = concurrency.NewConcurrencyManager()
+	txn.rm = NewRecoveryManager(txn, txn.txnum, lm, bm)
+	txn.cm = NewConcurrencyManager()
 	return txn
 }
 
@@ -57,7 +55,7 @@ release all locks and unpin any pinned buffers
 */
 func (txn *Transaction) Commit() {
 	txn.rm.Commit()
-	fmt.Println("transaction %d committed", txn.txnum)
+	fmt.Printf("transaction %d committed", txn.txnum)
 	txn.cm.Release()
 	txn.myBuffers.UnPinAll()
 }
@@ -71,7 +69,7 @@ release all locks and unpin any pinned buffers
 */
 func (txn *Transaction) Rollback() {
 	txn.rm.Rollback()
-	fmt.Println("transaction %d rolled back", txn.txnum)
+	fmt.Printf("transaction %d rolled back", txn.txnum)
 	txn.cm.Release()
 	txn.myBuffers.UnPinAll()
 }

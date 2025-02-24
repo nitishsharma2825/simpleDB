@@ -1,11 +1,10 @@
-package recovery
+package tx
 
 import (
 	"fmt"
 
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
 type RollbackRecord struct {
@@ -28,7 +27,7 @@ func (rr *RollbackRecord) TxNumber() int {
 	return rr.txnum
 }
 
-func (rr *RollbackRecord) Undo(*tx.Transaction) {}
+func (rr *RollbackRecord) Undo(*Transaction) {}
 
 func (rr *RollbackRecord) ToString() string {
 	return fmt.Sprintf("<Rollback %d>", rr.txnum)

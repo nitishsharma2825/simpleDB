@@ -1,8 +1,7 @@
-package recovery
+package tx
 
 import (
 	"github.com/nitishsharma2825/simpleDB/file"
-	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
 const (
@@ -22,7 +21,7 @@ type LogRecord interface {
 	// Undoes the operation encoded by this log record
 	// only applicable for SETINT and SETSTRING record type
 	// takes id of the transaction performing the undo
-	Undo(*tx.Transaction)
+	Undo(*Transaction)
 
 	ToString() string
 }

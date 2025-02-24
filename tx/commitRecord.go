@@ -1,11 +1,10 @@
-package recovery
+package tx
 
 import (
 	"fmt"
 
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
 type CommitRecord struct {
@@ -28,7 +27,7 @@ func (cr *CommitRecord) TxNumber() int {
 	return cr.txnum
 }
 
-func (cr *CommitRecord) Undo(*tx.Transaction) {}
+func (cr *CommitRecord) Undo(*Transaction) {}
 
 func (cr *CommitRecord) ToString() string {
 	return fmt.Sprintf("<COMMIT %d>", cr.txnum)

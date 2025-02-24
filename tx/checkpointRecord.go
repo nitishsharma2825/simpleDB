@@ -1,4 +1,4 @@
-package recovery
+package tx
 
 /*
 TODO: fix circular dependencies:
@@ -8,7 +8,6 @@ TODO: fix circular dependencies:
 import (
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
 type CheckpointRecord struct {
@@ -27,7 +26,7 @@ func (cpr *CheckpointRecord) TxNumber() int {
 	return -1
 }
 
-func (cpr *CheckpointRecord) Undo(*tx.Transaction) {}
+func (cpr *CheckpointRecord) Undo(*Transaction) {}
 
 func (cpr *CheckpointRecord) ToString() string {
 	return "<CHECKPOINT>"

@@ -1,4 +1,4 @@
-package concurrency
+package tx
 
 import "github.com/nitishsharma2825/simpleDB/file"
 

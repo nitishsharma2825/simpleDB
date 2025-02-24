@@ -1,9 +1,8 @@
-package recovery
+package tx
 
 import (
 	"github.com/nitishsharma2825/simpleDB/buffer"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
 /*
@@ -12,11 +11,11 @@ Each transaction has its own recovery manager
 type RecoveryManager struct {
 	lm    *log.Manager
 	bm    *buffer.Manager
-	tx    *tx.Transaction
+	tx    *Transaction
 	txnum int
 }
 
-func NewRecoveryManager(tx *tx.Transaction, txnum int, lm *log.Manager, bm *buffer.Manager) *RecoveryManager {
+func NewRecoveryManager(tx *Transaction, txnum int, lm *log.Manager, bm *buffer.Manager) *RecoveryManager {
 	WriteStartRecordToLog(lm, txnum)
 	return &RecoveryManager{
 		lm:    lm,

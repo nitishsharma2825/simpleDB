@@ -1,11 +1,10 @@
-package recovery
+package tx
 
 import (
 	"fmt"
 
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
 type SetStringRecord struct {
@@ -42,10 +41,10 @@ func (ssr *SetStringRecord) TxNumber() int {
 	return ssr.txnum
 }
 
-func (ssr *SetStringRecord) Undo(txn *tx.Transaction) {
+func (ssr *SetStringRecord) Undo(txn *Transaction) {
 	txn.Pin(ssr.blockId)
 	txn.SetString(ssr.blockId, ssr.offset, ssr.val, false) // don't log the undo
-	txn.Unpin(ssr.blockId)
+	txn.UnPin(ssr.blockId)
 }
 
 func (ssr *SetStringRecord) ToString() string {

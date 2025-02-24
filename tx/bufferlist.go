@@ -63,7 +63,7 @@ func (bl *BufferList) UnPin(blockId file.BlockID) {
 Unpin any buffers still pinned by this transaction
 */
 func (bl *BufferList) UnPinAll() {
-	for blockId, _ := range bl.pins {
+	for blockId := range bl.pins {
 		buff := bl.buffers[blockId]
 		bl.bm.UnPin(buff)
 	}

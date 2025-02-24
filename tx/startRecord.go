@@ -1,11 +1,10 @@
-package recovery
+package tx
 
 import (
 	"fmt"
 
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
 type StartRecord struct {
@@ -28,7 +27,7 @@ func (sr *StartRecord) TxNumber() int {
 	return sr.txnum
 }
 
-func (sr *StartRecord) Undo(*tx.Transaction) {}
+func (sr *StartRecord) Undo(*Transaction) {}
 
 func (sr *StartRecord) ToString() string {
 	return fmt.Sprintf("<START %d>", sr.txnum)
