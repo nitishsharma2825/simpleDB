@@ -34,6 +34,7 @@ func NewBufferManager(fm *file.Manager, lm *log.Manager, numBuffs int) *Manager 
 func (bm *Manager) Available() int {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
+
 	return bm.numAvailable
 }
 
@@ -63,27 +64,34 @@ func (bm *Manager) UnPin(buff *Buffer) {
 // if no buffer is available, clients will be put on wait until timeout
 // if timeout is over, an ErrAbortException is returned to client
 func (bm *Manager) Pin(blockId file.BlockID) (*Buffer, error) {
+	// Try immediately first before waiting
 	bm.mu.Lock()
-	defer bm.mu.Unlock()
-
-	startTime := time.Now()
 	buff := bm.TryToPin(blockId)
-	for {
-		if buff != nil {
-			break
-		}
-
-		if bm.WaitingTooLong(startTime) {
-			return nil, ErrBufferAbort
-		}
-
-		// with time.Sleep, the runtime scheduler will allocate execution time to another goroutine
-		// improve? with condition variables
-		time.Sleep(time.Millisecond)
-		buff = bm.TryToPin(blockId)
+	if buff != nil {
+		bm.mu.Unlock()
+		return buff, nil
 	}
+	bm.mu.Unlock()
 
-	return buff, nil
+	timeoutCh := time.After(MAX_TIME)
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		// waits for the time to elapse, then send current time on this channel
+		case <-timeoutCh:
+			return nil, ErrBufferAbort
+		case <-ticker.C:
+			bm.mu.Lock()
+			buff := bm.TryToPin(blockId)
+			bm.mu.Unlock()
+
+			if buff != nil {
+				return buff, nil
+			}
+		}
+	}
 }
 
 func (bm *Manager) WaitingTooLong(startTime time.Time) bool {

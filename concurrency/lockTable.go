@@ -33,25 +33,35 @@ Grant an SLock on the block
 Check if an XLock exist on the block
 */
 func (lt *LockTable) Slock(blockId file.BlockID) error {
+	// Try immediately first
 	lt.mu.Lock()
-	defer lt.mu.Unlock()
-
-	startTime := time.Now()
-	for {
-		if !lt.HasXlock(blockId) {
-			val := lt.GetLockVal(blockId)
-			lt.locks[blockId] = val + 1
-			break
-		}
-
-		if lt.WaitingTooLong(startTime) {
-			return ErrLockAbort
-		}
-
-		time.Sleep(time.Duration(MAX_TIME))
+	if !lt.HasXlock(blockId) {
+		val := lt.GetLockVal(blockId)
+		lt.locks[blockId] = val + 1
+		lt.mu.Unlock()
+		return nil
 	}
+	lt.mu.Unlock()
 
-	return nil
+	timeoutCh := time.After(MAX_TIME)
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-timeoutCh:
+			return ErrLockAbort
+		case <-ticker.C:
+			lt.mu.Lock()
+			if !lt.HasXlock(blockId) {
+				val := lt.GetLockVal(blockId)
+				lt.locks[blockId] = val + 1
+				lt.mu.Unlock()
+				return nil
+			}
+			lt.mu.Unlock()
+		}
+	}
 }
 
 /*
@@ -59,24 +69,33 @@ Grant XLock on the block
 Check if any SLock exist on the block
 */
 func (lt *LockTable) Xlock(blockId file.BlockID) error {
+	// Try immediately first
 	lt.mu.Lock()
-	defer lt.mu.Unlock()
-
-	startTime := time.Now()
-	for {
-		if !lt.HasOtherSlocks(blockId) {
-			lt.locks[blockId] = -1
-			break
-		}
-
-		if lt.WaitingTooLong(startTime) {
-			return ErrLockAbort
-		}
-
-		time.Sleep(time.Duration(MAX_TIME))
+	if !lt.HasOtherSlocks(blockId) {
+		lt.locks[blockId] = -1
+		lt.mu.Unlock()
+		return nil
 	}
+	lt.mu.Unlock()
 
-	return nil
+	timeoutCh := time.After(MAX_TIME)
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-timeoutCh:
+			return ErrLockAbort
+		case <-ticker.C:
+			lt.mu.Lock()
+			if !lt.HasOtherSlocks(blockId) {
+				lt.locks[blockId] = -1
+				lt.mu.Unlock()
+				return nil
+			}
+			lt.mu.Unlock()
+		}
+	}
 }
 
 /*
