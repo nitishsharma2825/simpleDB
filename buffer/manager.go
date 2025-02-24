@@ -94,10 +94,6 @@ func (bm *Manager) Pin(blockId file.BlockID) (*Buffer, error) {
 	}
 }
 
-func (bm *Manager) WaitingTooLong(startTime time.Time) bool {
-	return time.Since(startTime).Seconds() > MAX_TIME.Seconds()
-}
-
 func (bm *Manager) TryToPin(blockId file.BlockID) *Buffer {
 	buff := bm.FindExistingBuffer(blockId)
 	if buff == nil {

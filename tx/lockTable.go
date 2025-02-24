@@ -16,16 +16,32 @@ If one of those txns discovers that block is still locked, it will place itself 
 */
 
 const MAX_TIME = 10 * time.Second // 10s
+
+var (
+	lockTableOnce sync.Once
+	lockTable     *LockTable
+	lockTableMu   sync.Mutex
+)
+
 type LockTable struct {
 	locks map[file.BlockID]int
 	mu    sync.Mutex
 }
 
-func NewLockTable() *LockTable {
-	return &LockTable{
-		locks: make(map[file.BlockID]int),
-		mu:    sync.Mutex{},
-	}
+func GetLockTable() *LockTable {
+	lockTableOnce.Do(func() {
+		lockTableMu.Lock()
+		defer lockTableMu.Unlock()
+
+		if lockTable == nil {
+			lockTable = &LockTable{
+				locks: make(map[file.BlockID]int),
+				mu:    sync.Mutex{},
+			}
+		}
+	})
+
+	return lockTable
 }
 
 /*
@@ -130,8 +146,4 @@ func (lt *LockTable) GetLockVal(blockId file.BlockID) int {
 	}
 
 	return val
-}
-
-func (lt *LockTable) WaitingTooLong(startTime time.Time) bool {
-	return time.Since(startTime).Seconds() > MAX_TIME.Seconds()
 }

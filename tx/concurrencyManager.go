@@ -15,7 +15,7 @@ type ConcurrencyManager struct {
 
 func NewConcurrencyManager() *ConcurrencyManager {
 	return &ConcurrencyManager{
-		lt:    NewLockTable(),
+		lt:    GetLockTable(),
 		locks: make(map[file.BlockID]string),
 	}
 }
@@ -26,7 +26,10 @@ Ask the lock table for an SLock if the txn currently has no locks on that block
 */
 func (cm *ConcurrencyManager) Slock(blockId file.BlockID) {
 	if _, ok := cm.locks[blockId]; !ok {
-		cm.Slock(blockId)
+		err := cm.lt.Slock(blockId)
+		if err != nil {
+			panic(err)
+		}
 		cm.locks[blockId] = "S"
 	}
 }
@@ -38,7 +41,10 @@ First, get an SLock and then upgrade to XLock
 func (cm *ConcurrencyManager) Xlock(blockId file.BlockID) {
 	if !cm.HasXlock(blockId) {
 		cm.Slock(blockId)
-		cm.lt.Xlock(blockId)
+		err := cm.lt.Xlock(blockId)
+		if err != nil {
+			panic(err)
+		}
 		cm.locks[blockId] = "X"
 	}
 }
