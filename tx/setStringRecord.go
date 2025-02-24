@@ -15,21 +15,26 @@ type SetStringRecord struct {
 }
 
 func NewSetStringRecord(p *file.Page) *SetStringRecord {
-	tpos := p.GetInt(file.IntBytes)
+	tpos := file.IntBytes
+	txnum := p.GetInt(tpos)
 
 	fpos := tpos + file.IntBytes
-	fileName := p.GetString(fpos)
-	bpos := fpos + file.MaxLength(len(fileName))
+	filename := p.GetString(fpos)
+	bpos := fpos + file.MaxLength(len(filename))
 	blockNum := p.GetInt(bpos)
+	blockId := file.NewBlockID(filename, blockNum)
 
 	opos := bpos + file.IntBytes
+	offset := p.GetInt(opos)
+
 	vpos := opos + file.IntBytes
+	val := p.GetString(vpos)
 
 	return &SetStringRecord{
-		txnum:   p.GetInt(tpos),
-		blockId: file.NewBlockID(fileName, blockNum),
-		offset:  p.GetInt(opos),
-		val:     p.GetString(vpos),
+		txnum:   txnum,
+		blockId: blockId,
+		offset:  offset,
+		val:     val,
 	}
 }
 
@@ -58,7 +63,7 @@ func WriteSetStringRecordToLog(lm *log.Manager, txnum int, blockId file.BlockID,
 	opos := bpos + file.IntBytes
 	vpos := opos + file.IntBytes
 
-	record := make([]byte, vpos+file.IntBytes)
+	record := make([]byte, vpos+file.MaxLength(len(val)))
 	page := file.NewPageWithSlice(record)
 
 	page.SetInt(0, SETSTRING)

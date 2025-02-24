@@ -136,7 +136,7 @@ func (lt *LockTable) HasXlock(blockId file.BlockID) bool {
 
 // Positive int indicates no of SLocks held for this block
 func (lt *LockTable) HasOtherSlocks(blockId file.BlockID) bool {
-	return lt.GetLockVal(blockId) > 0
+	return lt.GetLockVal(blockId) > 1
 }
 
 func (lt *LockTable) GetLockVal(blockId file.BlockID) int {

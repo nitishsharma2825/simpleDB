@@ -37,14 +37,15 @@ func (bl *BufferList) GetBuffer(blockId file.BlockID) *buffer.Buffer {
 /*
 Pin the block and keep track of the buffer internally
 */
-func (bl *BufferList) Pin(blockId file.BlockID) {
+func (bl *BufferList) Pin(blockId file.BlockID) error {
 	buff, err := bl.bm.Pin(blockId)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	bl.buffers[blockId] = buff
 	bl.pins[blockId] = true
+	return nil
 }
 
 /*

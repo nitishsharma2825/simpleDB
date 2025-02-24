@@ -84,8 +84,12 @@ func (txn *Transaction) Recover() {
 Pins the specified block
 the transaction manages the buffer for the client
 */
-func (txn *Transaction) Pin(blockId file.BlockID) {
-	txn.myBuffers.Pin(blockId)
+func (txn *Transaction) Pin(blockId file.BlockID) error {
+	err := txn.myBuffers.Pin(blockId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 /*
