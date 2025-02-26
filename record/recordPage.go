@@ -67,10 +67,62 @@ func (rp *RecordPage) Delete(slot int) {
 }
 
 /*
+Use the layout to format a new block of records
+No logging used since old values are meaningless
+*/
+func (rp *RecordPage) Format() {
+	slot := 0
+	for rp.IsValidSlot(slot) {
+		rp.tx.SetInt(rp.blockId, rp.offset(slot), EMPTY, false)
+		sch := rp.layout.Schema()
+		for _, fieldName := range sch.Fields() {
+			fieldPos := rp.offset(slot) + rp.layout.Offset(fieldName)
+			if sch.FieldType(fieldName) == INTEGER {
+				rp.tx.SetInt(rp.blockId, fieldPos, 0, false)
+			} else {
+				rp.tx.SetString(rp.blockId, fieldPos, "", false)
+			}
+		}
+		slot++
+	}
+}
+
+func (rp *RecordPage) NextAfter(slot int) int {
+	return rp.searchAfter(slot, USED)
+}
+
+func (rp *RecordPage) InsertAfter(slot int) int {
+	newSlot := rp.searchAfter(slot, EMPTY)
+	if newSlot >= 0 {
+		rp.SetFlag(newSlot, USED)
+	}
+	return newSlot
+}
+
+func (rp *RecordPage) Block() file.BlockID {
+	return rp.blockId
+}
+
+func (rp *RecordPage) searchAfter(slot int, flag int) int {
+	slot++
+	for rp.IsValidSlot(slot) {
+		if rp.tx.GetInt(rp.blockId, rp.offset(slot)) == flag {
+			return slot
+		}
+		slot++
+	}
+	return -1
+}
+
+/*
 Set the record's empty/inuse flag
 */
 func (rp *RecordPage) SetFlag(slot int, flag int) {
 	rp.tx.SetInt(rp.blockId, rp.offset(slot), flag, true)
+}
+
+func (rp *RecordPage) IsValidSlot(slot int) bool {
+	return rp.offset(slot+1) <= rp.tx.BlockSize()
 }
 
 func (rp *RecordPage) offset(slot int) int {
