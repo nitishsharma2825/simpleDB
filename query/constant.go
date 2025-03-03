@@ -1,6 +1,9 @@
 package query
 
-import "fmt"
+import (
+	"fmt"
+	"hash/fnv"
+)
 
 type Constant struct {
 	ival *int
@@ -44,4 +47,14 @@ func (c Constant) ToString() string {
 		return fmt.Sprintf("%d", *c.ival)
 	}
 	return *c.sval
+}
+
+func (c Constant) HashCode() int {
+	h := fnv.New32a()
+	if c.ival != nil {
+		h.Write([]byte(fmt.Sprintf("%d", *c.ival)))
+	} else if c.sval != nil {
+		h.Write([]byte(*c.sval))
+	}
+	return int(h.Sum32())
 }
