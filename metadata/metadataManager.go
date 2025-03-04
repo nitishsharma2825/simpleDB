@@ -8,15 +8,21 @@ import (
 type MetadataManager struct {
 	tableManager *TableManager
 	viewManager  *ViewManager
+	statManager  *StatManager
+	indexManager *IndexManager
 }
 
 func NewMetadataManager(isNew bool, tx *tx.Transaction) *MetadataManager {
 	tm := NewTableManager(isNew, tx)
 	vm := NewViewManager(isNew, tm, tx)
+	sm := NewStatManager(tm, tx)
+	im := NewIndexManager(isNew, tm, sm, tx)
 
 	return &MetadataManager{
 		tableManager: tm,
 		viewManager:  vm,
+		statManager:  sm,
+		indexManager: im,
 	}
 }
 
@@ -34,4 +40,16 @@ func (mm *MetadataManager) CreateView(viewname string, viewdef string, tx *tx.Tr
 
 func (mm *MetadataManager) GetViewDef(viewname string, tx *tx.Transaction) string {
 	return mm.viewManager.GetViewDef(viewname, tx)
+}
+
+func (mm *MetadataManager) CreateIndex(indexName string, tableName string, fieldName string, tx *tx.Transaction) {
+	mm.indexManager.CreateIndex(indexName, tableName, fieldName, tx)
+}
+
+func (mm *MetadataManager) GetIndexInfo(tableName string, tx *tx.Transaction) map[string]*IndexInfo {
+	return mm.indexManager.GetIndexInfo(tableName, tx)
+}
+
+func (mm *MetadataManager) GetStatInfo(tableName string, layout *record.Layout, tx *tx.Transaction) StatInfo {
+	return mm.statManager.GetStatInfo(tableName, layout, tx)
 }

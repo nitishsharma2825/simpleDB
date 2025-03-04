@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"github.com/nitishsharma2825/simpleDB/index"
 	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
@@ -37,9 +38,8 @@ func NewIndexInfo(idxName string, fldName string, tblSchema *record.Schema, tx *
 /*
 Open the index described by this object
 */
-// TODO: Need to implement index
-func (ii *IndexInfo) Open() Index {
-	return NewHashIndex(ii.tx, ii.indexName, ii.indexLayout)
+func (ii *IndexInfo) Open() index.Index {
+	return index.NewHashIndex(ii.tx, ii.indexName, ii.indexLayout)
 	// return NewBTreeIndex()
 }
 
@@ -47,11 +47,14 @@ func (ii *IndexInfo) Open() Index {
 Estimate the number of block accesses required to find all index records
 having a particular search key.
 The method uses the table's metadata to estimate the size of the index file and number of
-indexed records per blocl
+indexed records per block
 It then passes this information to the traversalCost method of the appropriate index type
 which provides the estimate
 */
 func (ii *IndexInfo) BlocksAccessed() int {
+	recPerBlock := ii.tx.BlockSize() / ii.indexLayout.SlotSize()
+	numBlocks := ii.statInfo.RecordsOutput() / recPerBlock
+	return index.SearchCost(numBlocks, recPerBlock)
 }
 
 /*

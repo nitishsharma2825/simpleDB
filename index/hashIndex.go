@@ -116,6 +116,6 @@ Returns the cost of searching an index file having the specified number of block
 The method assumes that all buckets are about the same size
 so the cost is simply the size of the bucket
 */
-func (hi *HashIndex) SearchCost(numBlocks int, recPerBlock int) int {
+func SearchCost(numBlocks int, recPerBlock int) int {
 	return numBlocks / NUM_BUCKETS
 }
