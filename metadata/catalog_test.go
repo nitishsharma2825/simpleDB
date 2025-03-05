@@ -29,7 +29,7 @@ func TestCatalog(t *testing.T) {
 	bm := buffer.NewBufferManager(fm, lm, bufferPoolSize)
 
 	tx := tx.NewTransaction(fm, lm, bm)
-	tableManager := NewTableManager(false, tx)
+	tableManager := NewTableManager(true, tx) // keep it false if data files exist
 	tcatLayout := tableManager.GetLayout("tblcat", tx)
 
 	t.Logf("Here are all the tables and their lengths.\n")
@@ -42,6 +42,8 @@ func TestCatalog(t *testing.T) {
 	ts.Close()
 
 	t.Logf("Here are the fields for each table and their offset")
+	fcatLayout := tableManager.GetLayout("fldcat", tx)
+	ts = record.NewTableScan(tx, "fldcat", fcatLayout)
 	for ts.Next() {
 		tname := ts.GetString("tblname")
 		fname := ts.GetString("fldname")
