@@ -20,10 +20,7 @@ func TestConcurrency(t *testing.T) {
 
 	t.Cleanup(func() {
 		p1 := path.Join(dbFolder, blockFile)
-		p2 := path.Join(dbFolder, logFile)
-		os.Remove(p1)
-		os.Remove(p2)
-		os.Remove(path.Dir(p1))
+		os.RemoveAll(path.Dir(p1))
 	})
 
 	fm := file.NewFileManager(dbFolder, blockSize)

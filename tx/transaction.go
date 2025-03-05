@@ -107,6 +107,10 @@ First Obtain an SLock on the block, then call its buffer to retrieve the value
 func (txn *Transaction) GetInt(blockId file.BlockID, offset int) int {
 	txn.cm.Slock(blockId)
 	buff := txn.myBuffers.GetBuffer(blockId)
+	if buff == nil {
+		txn.Pin(blockId)
+		buff = txn.myBuffers.GetBuffer(blockId)
+	}
 	return buff.Contents().GetInt(offset)
 }
 
@@ -117,6 +121,10 @@ First Obtain an SLock on the block, then call its buffer to retrieve the value
 func (txn *Transaction) GetString(blockId file.BlockID, offset int) string {
 	txn.cm.Slock(blockId)
 	buff := txn.myBuffers.GetBuffer(blockId)
+	if buff == nil {
+		txn.Pin(blockId)
+		buff = txn.myBuffers.GetBuffer(blockId)
+	}
 	return buff.Contents().GetString(offset)
 }
 
