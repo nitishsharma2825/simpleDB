@@ -12,9 +12,8 @@ func TestFile(t *testing.T) {
 	const blockSize = 400
 
 	t.Cleanup(func() {
-		p := path.Join(dbFolder, blockFile)
-		os.Remove(p)
-		os.Remove(path.Dir(p))
+		p1 := path.Join(dbFolder, blockFile)
+		os.RemoveAll(path.Dir(p1))
 	})
 
 	fileManager := NewFileManager(dbFolder, blockSize)
