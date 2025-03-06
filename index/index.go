@@ -1,7 +1,6 @@
 package index
 
 import (
-	"github.com/nitishsharma2825/simpleDB/query"
 	"github.com/nitishsharma2825/simpleDB/record"
 )
 
@@ -13,7 +12,7 @@ type Index interface {
 		Positions the index before the 1st record
 		having the specified search key
 	*/
-	BeforeFirst(query.Constant)
+	BeforeFirst(record.Constant)
 
 	/*
 		Moves the index to the next record having the search key
@@ -30,12 +29,12 @@ type Index interface {
 	/*
 		Inserts an index record having the specified dataval and dataRID values
 	*/
-	Insert(query.Constant, record.RID)
+	Insert(record.Constant, record.RID)
 
 	/*
 		Deletes the index record having the specified dataval and dataRID values
 	*/
-	Delete(query.Constant, record.RID)
+	Delete(record.Constant, record.RID)
 
 	/*
 		Closes the index

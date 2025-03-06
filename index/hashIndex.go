@@ -3,7 +3,6 @@ package index
 import (
 	"fmt"
 
-	"github.com/nitishsharma2825/simpleDB/query"
 	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
@@ -21,7 +20,7 @@ type HashIndex struct {
 	tx        *tx.Transaction
 	indexName string
 	layout    *record.Layout
-	searchKey query.Constant
+	searchKey record.Constant
 	tableScan *record.TableScan
 }
 
@@ -45,7 +44,7 @@ and then opens a table scan on the file
 corresponding to the bucket.
 The table scan for the previous bucket is closed
 */
-func (hi *HashIndex) BeforeFirst(searchKey query.Constant) {
+func (hi *HashIndex) BeforeFirst(searchKey record.Constant) {
 	hi.Close()
 	hi.searchKey = searchKey
 	bucket := searchKey.HashCode() % NUM_BUCKETS
@@ -81,7 +80,7 @@ func (hi *HashIndex) GetDataRID() record.RID {
 /*
 Inserts a new record into the table scan for the bucket
 */
-func (hi *HashIndex) Insert(value query.Constant, rid record.RID) {
+func (hi *HashIndex) Insert(value record.Constant, rid record.RID) {
 	hi.BeforeFirst(value)
 	hi.tableScan.Insert()
 	hi.tableScan.SetInt("block", rid.BlockNum())
@@ -92,7 +91,7 @@ func (hi *HashIndex) Insert(value query.Constant, rid record.RID) {
 /*
 Deletes the specified record from the table scan for the bucket
 */
-func (hi *HashIndex) Delete(value query.Constant, rid record.RID) {
+func (hi *HashIndex) Delete(value record.Constant, rid record.RID) {
 	hi.BeforeFirst(value)
 	for hi.Next() {
 		if hi.GetDataRID() == rid {

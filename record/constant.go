@@ -1,4 +1,4 @@
-package query
+package record
 
 import (
 	"fmt"

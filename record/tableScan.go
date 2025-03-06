@@ -2,7 +2,6 @@ package record
 
 import (
 	"github.com/nitishsharma2825/simpleDB/file"
-	"github.com/nitishsharma2825/simpleDB/query"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -60,11 +59,11 @@ func (ts *TableScan) GetString(fieldName string) string {
 }
 
 // TODO: Fix this
-func (ts *TableScan) GetVal(fieldName string) query.Constant {
+func (ts *TableScan) GetVal(fieldName string) Constant {
 	if ts.layout.Schema().FieldType(fieldName) == INTEGER {
-		return query.NewIntConstant(ts.GetInt(fieldName))
+		return NewIntConstant(ts.GetInt(fieldName))
 	} else {
-		return query.NewStringConstant(ts.GetString(fieldName))
+		return NewStringConstant(ts.GetString(fieldName))
 	}
 }
 
@@ -88,7 +87,7 @@ func (ts *TableScan) SetString(fieldName string, val string) {
 	ts.rp.SetString(ts.currentSlot, fieldName, val)
 }
 
-func (ts *TableScan) SetVal(fieldName string, val query.Constant) {
+func (ts *TableScan) SetVal(fieldName string, val Constant) {
 	if ts.layout.Schema().FieldType(fieldName) == INTEGER {
 		ts.SetInt(fieldName, val.AsInt())
 	} else {
