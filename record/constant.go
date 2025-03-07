@@ -10,6 +10,13 @@ type Constant struct {
 	sval *string
 }
 
+func NewNilConstant() Constant {
+	return Constant{
+		ival: nil,
+		sval: nil,
+	}
+}
+
 func NewIntConstant(ival int) Constant {
 	return Constant{ival: &ival}
 }

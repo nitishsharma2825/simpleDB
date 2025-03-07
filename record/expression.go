@@ -20,7 +20,8 @@ func NewExpressionWithField(fieldName string) Expression {
 }
 
 /*
-Evaluate the expression with respect to the current record of the specified scan
+Evaluate the expression
+with respect to the current record of the specified scan
 */
 func (exp Expression) Evaluate(scan Scan) Constant {
 	if exp.value != nil {
@@ -59,7 +60,7 @@ func (exp Expression) AsFieldName() string {
 Determine if all the fields mentioned in the expression
 are contained in the specified schema
 */
-func (exp Expression) AppliesTo(schema Schema) bool {
+func (exp Expression) AppliesTo(schema *Schema) bool {
 	if exp.value != nil {
 		return true
 	}

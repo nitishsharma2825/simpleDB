@@ -72,7 +72,7 @@ func (t Term) EquatesWithField(fieldName string) string {
 /*
 Return true if both the term's expressions apply to the specified schema
 */
-func (t Term) AppliesTo(schema Schema) bool {
+func (t Term) AppliesTo(schema *Schema) bool {
 	return t.lhs.AppliesTo(schema) && t.rhs.AppliesTo(schema)
 }
 
