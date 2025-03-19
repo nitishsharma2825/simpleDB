@@ -25,7 +25,7 @@ func (l *Lexer) MatchTokenType(t tokenType) bool {
 }
 
 func (l *Lexer) MatchIntValue() bool {
-	return l.MatchTokenType(TokenInt)
+	return l.MatchTokenType(TokenNumber)
 }
 
 func (l *Lexer) MatchStringValue() bool {
@@ -78,7 +78,7 @@ func (l *Lexer) EatIdentifier() (string, error) {
 		return "", ErrInvalidSyntax
 	}
 	defer l.nextToken()
-	return l.current.Value.(string), nil
+	return l.current.Lexeme, nil
 }
 
 func (l *Lexer) nextToken() error {

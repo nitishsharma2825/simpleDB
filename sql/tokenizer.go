@@ -77,18 +77,15 @@ type Tokenizer struct {
 	line     int
 }
 
-func newTokenizer(source string) *Tokenizer {
-	return &Tokenizer{
+func NewTokenizer(source string) *Tokenizer {
+	t := &Tokenizer{
 		source:   strings.ToLower(source),
 		start:    0,
 		current:  0,
 		line:     1,
 		keywords: make(map[string]tokenType),
 	}
-}
 
-func Tokenize(source string) ([]Token, error) {
-	t := newTokenizer(source)
 	t.keywords["select"] = TokenSelect
 	t.keywords["from"] = TokenFrom
 	t.keywords["where"] = TokenWhere
@@ -108,6 +105,11 @@ func Tokenize(source string) ([]Token, error) {
 	t.keywords["index"] = TokenIndex
 	t.keywords["on"] = TokenOn
 
+	return t
+}
+
+func Tokenize(source string) ([]Token, error) {
+	t := NewTokenizer(source)
 	return t.tokenize()
 }
 
