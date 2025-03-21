@@ -139,3 +139,7 @@ func (p *Predicate) ToString() string {
 	}
 	return result
 }
+
+func (p *Predicate) Terms() []Term {
+	return p.terms
+}

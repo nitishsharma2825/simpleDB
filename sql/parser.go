@@ -311,7 +311,7 @@ func (p *Parser) Modify() (*ModifyData, error) {
 }
 
 // methods for parsing create table commands
-func (p *Parser) CreateTable() (interface{}, error) {
+func (p *Parser) CreateTable() (*CreateTableData, error) {
 	p.lexer.EatKeyword("table")
 	tblName, err := p.lexer.EatIdentifier()
 	if err != nil {
@@ -369,7 +369,7 @@ func (p *Parser) fieldType(fldName string) (*record.Schema, error) {
 }
 
 // methods for parsing create view commands
-func (p *Parser) CreateView() (interface{}, error) {
+func (p *Parser) CreateView() (*CreateViewData, error) {
 	p.lexer.EatKeyword("view")
 	viewName, err := p.lexer.EatIdentifier()
 	if err != nil {
@@ -378,13 +378,13 @@ func (p *Parser) CreateView() (interface{}, error) {
 	p.lexer.EatKeyword("as")
 	qd, err := p.Query()
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 	return NewCreateViewData(viewName, qd), nil
 }
 
 // methods for parsing create index command
-func (p *Parser) CreateIndex() (interface{}, error) {
+func (p *Parser) CreateIndex() (*CreateIndexData, error) {
 	p.lexer.EatKeyword("index")
 	idxName, err := p.lexer.EatIdentifier()
 	if err != nil {

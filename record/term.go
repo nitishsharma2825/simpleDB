@@ -79,3 +79,11 @@ func (t Term) AppliesTo(schema *Schema) bool {
 func (t Term) ToString() string {
 	return fmt.Sprintf("%q=%q", t.lhs.ToString(), t.rhs.ToString())
 }
+
+func (t Term) Lhs() Expression {
+	return t.lhs
+}
+
+func (t Term) Rhs() Expression {
+	return t.rhs
+}
