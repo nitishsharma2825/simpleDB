@@ -1,6 +1,4 @@
-package sql
-
-import "github.com/nitishsharma2825/simpleDB/record"
+package record
 
 /*
 Data for the SQL select command
@@ -8,10 +6,10 @@ Data for the SQL select command
 type QueryData struct {
 	fields []string
 	tables []string
-	pred   record.Predicate
+	pred   Predicate
 }
 
-func NewQueryData(fields, tables []string, pred record.Predicate) *QueryData {
+func NewQueryData(fields, tables []string, pred Predicate) *QueryData {
 	return &QueryData{
 		fields: fields,
 		tables: tables,
@@ -27,7 +25,7 @@ func (qd *QueryData) Tables() []string {
 	return qd.tables
 }
 
-func (qd *QueryData) Pred() record.Predicate {
+func (qd *QueryData) Pred() Predicate {
 	return qd.pred
 }
 

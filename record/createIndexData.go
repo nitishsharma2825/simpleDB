@@ -1,4 +1,4 @@
-package sql
+package record
 
 /*
 The parser for create index statement

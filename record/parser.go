@@ -1,6 +1,4 @@
-package sql
-
-import "github.com/nitishsharma2825/simpleDB/record"
+package record
 
 // Entire grammar for the SQL subset supported by SimpleDB
 // <Field> := TokenIdentifier
@@ -41,43 +39,43 @@ func (p *Parser) Field() (string, error) {
 	return p.lexer.EatIdentifier()
 }
 
-func (p *Parser) Constant() (*record.Constant, error) {
+func (p *Parser) Constant() (*Constant, error) {
 	if p.lexer.MatchStringValue() {
 		val, err := p.lexer.EatStringValue()
 		if err != nil {
 			return nil, err
 		}
-		constant := record.NewStringConstant(val)
+		constant := NewStringConstant(val)
 		return &constant, nil
 	} else {
 		val, err := p.lexer.EatIntValue()
 		if err != nil {
 			return nil, err
 		}
-		constant := record.NewIntConstant(val)
+		constant := NewIntConstant(val)
 		return &constant, nil
 	}
 }
 
-func (p *Parser) Expression() (*record.Expression, error) {
+func (p *Parser) Expression() (*Expression, error) {
 	if p.lexer.MatchIdentifier() {
 		val, err := p.Field()
 		if err != nil {
 			return nil, err
 		}
-		exp := record.NewExpressionWithField(val)
+		exp := NewExpressionWithField(val)
 		return &exp, nil
 	} else {
 		val, err := p.Constant()
 		if err != nil {
 			return nil, err
 		}
-		exp := record.NewExpressionWithConstant(*val)
+		exp := NewExpressionWithConstant(*val)
 		return &exp, nil
 	}
 }
 
-func (p *Parser) Term() (*record.Term, error) {
+func (p *Parser) Term() (*Term, error) {
 	lhs, err := p.Expression()
 	if err != nil {
 		return nil, err
@@ -87,16 +85,16 @@ func (p *Parser) Term() (*record.Term, error) {
 	if err != nil {
 		return nil, err
 	}
-	term := record.NewTerm(*lhs, *rhs)
+	term := NewTerm(*lhs, *rhs)
 	return &term, nil
 }
 
-func (p *Parser) Predicate() (*record.Predicate, error) {
+func (p *Parser) Predicate() (*Predicate, error) {
 	term, err := p.Term()
 	if err != nil {
 		return nil, err
 	}
-	pred := record.NewPredicateWithTerm(*term)
+	pred := NewPredicateWithTerm(*term)
 	if p.lexer.MatchKeyword("and") {
 		p.lexer.EatKeyword("and")
 		nextPred, err := p.Predicate()
@@ -120,7 +118,7 @@ func (p *Parser) Query() (*QueryData, error) {
 	if err != nil {
 		return nil, err
 	}
-	var pred *record.Predicate
+	var pred *Predicate
 	if p.lexer.MatchKeyword("where") {
 		p.lexer.EatKeyword("where")
 		pred, err = p.Predicate()
@@ -204,7 +202,7 @@ func (p *Parser) Delete() (*DeleteData, error) {
 	if err != nil {
 		return nil, err
 	}
-	pred := record.NewPredicate()
+	pred := NewPredicate()
 	if p.lexer.MatchKeyword("where") {
 		p.lexer.EatKeyword("where")
 		pred, err = p.Predicate()
@@ -259,8 +257,8 @@ func (p *Parser) fieldList() ([]string, error) {
 	return result, nil
 }
 
-func (p *Parser) constList() ([]*record.Constant, error) {
-	result := make([]*record.Constant, 0)
+func (p *Parser) constList() ([]*Constant, error) {
+	result := make([]*Constant, 0)
 	constant, err := p.Constant()
 	if err != nil {
 		return nil, err
@@ -298,7 +296,7 @@ func (p *Parser) Modify() (*ModifyData, error) {
 		return nil, err
 	}
 
-	pred := record.NewPredicate()
+	pred := NewPredicate()
 	if p.lexer.MatchKeyword("where") {
 		p.lexer.EatKeyword("where")
 		pred, err = p.Predicate()
@@ -326,7 +324,7 @@ func (p *Parser) CreateTable() (*CreateTableData, error) {
 	return NewCreateTableData(tblName, schema), nil
 }
 
-func (p *Parser) fieldDefs() (*record.Schema, error) {
+func (p *Parser) fieldDefs() (*Schema, error) {
 	schema, err := p.fieldDef()
 	if err != nil {
 		return nil, err
@@ -342,7 +340,7 @@ func (p *Parser) fieldDefs() (*record.Schema, error) {
 	return schema, nil
 }
 
-func (p *Parser) fieldDef() (*record.Schema, error) {
+func (p *Parser) fieldDef() (*Schema, error) {
 	fldName, err := p.Field()
 	if err != nil {
 		return nil, err
@@ -350,8 +348,8 @@ func (p *Parser) fieldDef() (*record.Schema, error) {
 	return p.fieldType(fldName)
 }
 
-func (p *Parser) fieldType(fldName string) (*record.Schema, error) {
-	schema := record.NewSchema()
+func (p *Parser) fieldType(fldName string) (*Schema, error) {
+	schema := NewSchema()
 	if p.lexer.MatchKeyword("int") {
 		p.lexer.EatKeyword("int")
 		schema.AddIntField(fldName)

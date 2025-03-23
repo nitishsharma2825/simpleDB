@@ -1,4 +1,4 @@
-package sql
+package record
 
 type PredParser struct {
 	lexer *Lexer

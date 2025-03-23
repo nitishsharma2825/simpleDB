@@ -1,10 +1,8 @@
-package sql
+package record
 
 import (
 	"slices"
 	"testing"
-
-	"github.com/nitishsharma2825/simpleDB/record"
 )
 
 func TestParseField(t *testing.T) {
@@ -224,12 +222,12 @@ func TestCreateTableCommand(t *testing.T) {
 		t.Fatalf("expected field to be %q, got %q\n", "age", v)
 	}
 
-	if v := sch.FieldType("name"); v != record.VARCHAR {
-		t.Fatalf("expected field %q to be of type %d, got %d\n", "name", record.VARCHAR, v)
+	if v := sch.FieldType("name"); v != VARCHAR {
+		t.Fatalf("expected field %q to be of type %d, got %d\n", "name", VARCHAR, v)
 	}
 
-	if v := sch.FieldType("age"); v != record.INTEGER {
-		t.Fatalf("expected field %q to be of type %d, got %d\n", "name", record.INTEGER, v)
+	if v := sch.FieldType("age"); v != INTEGER {
+		t.Fatalf("expected field %q to be of type %d, got %d\n", "name", INTEGER, v)
 	}
 
 	if v := sch.Length("name"); v != 10 {

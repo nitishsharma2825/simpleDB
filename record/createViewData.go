@@ -1,4 +1,4 @@
-package sql
+package record
 
 /*
 Data for create view statement
