@@ -1,4 +1,4 @@
-package metadata
+package record
 
 import (
 	"fmt"
@@ -11,7 +11,6 @@ import (
 	"github.com/nitishsharma2825/simpleDB/buffer"
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -34,7 +33,7 @@ func TestMetadataManager(t *testing.T) {
 	tx := tx.NewTransaction(fm, lm, bm)
 	mdm := NewMetadataManager(true, tx)
 
-	schema1 := record.NewSchema()
+	schema1 := NewSchema()
 	schema1.AddIntField("A")
 	schema1.AddStringField("B", 9)
 
@@ -48,7 +47,7 @@ func TestMetadataManager(t *testing.T) {
 	t.Logf("Its fields are: \n")
 	for _, fieldName := range schema2.Fields() {
 		var fldType string
-		if schema2.FieldType(fieldName) == record.INTEGER {
+		if schema2.FieldType(fieldName) == INTEGER {
 			fldType = "int"
 		} else {
 			strlen := schema2.Length(fieldName)
@@ -58,7 +57,7 @@ func TestMetadataManager(t *testing.T) {
 	}
 
 	// Part 2: Statistics Metadata
-	ts := record.NewTableScan(tx, "MyTable", layout)
+	ts := NewTableScan(tx, "MyTable", layout)
 	for range 50 {
 		ts.Insert()
 		n := rand.Intn(50)

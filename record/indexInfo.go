@@ -1,8 +1,6 @@
-package metadata
+package record
 
 import (
-	"github.com/nitishsharma2825/simpleDB/index"
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -17,12 +15,12 @@ type IndexInfo struct {
 	indexName   string
 	fieldName   string
 	tx          *tx.Transaction
-	tableSchema *record.Schema // table schema
-	indexLayout *record.Layout // index layout
+	tableSchema *Schema // table schema
+	indexLayout *Layout // index layout
 	statInfo    StatInfo
 }
 
-func NewIndexInfo(idxName string, fldName string, tblSchema *record.Schema, tx *tx.Transaction, si StatInfo) *IndexInfo {
+func NewIndexInfo(idxName string, fldName string, tblSchema *Schema, tx *tx.Transaction, si StatInfo) *IndexInfo {
 	indexInfo := &IndexInfo{
 		indexName:   idxName,
 		fieldName:   fldName,
@@ -38,8 +36,8 @@ func NewIndexInfo(idxName string, fldName string, tblSchema *record.Schema, tx *
 /*
 Open the index described by this object
 */
-func (ii *IndexInfo) Open() index.Index {
-	return index.NewHashIndex(ii.tx, ii.indexName, ii.indexLayout)
+func (ii *IndexInfo) Open() Index {
+	return NewHashIndex(ii.tx, ii.indexName, ii.indexLayout)
 	// return NewBTreeIndex()
 }
 
@@ -54,7 +52,7 @@ which provides the estimate
 func (ii *IndexInfo) BlocksAccessed() int {
 	recPerBlock := ii.tx.BlockSize() / ii.indexLayout.SlotSize()
 	numBlocks := ii.statInfo.RecordsOutput() / recPerBlock
-	return index.SearchCost(numBlocks, recPerBlock)
+	return SearchCost(numBlocks, recPerBlock)
 }
 
 /*
@@ -83,15 +81,15 @@ Scheme consists of dataRID (represented as 2 integers - blockNum, recordId)
 and dataval (which is the indexed field)
 Schema information about the indexed field is obtained via the table's schema
 */
-func (ii *IndexInfo) CreateIndexLayout() *record.Layout {
-	sch := record.NewSchema()
+func (ii *IndexInfo) CreateIndexLayout() *Layout {
+	sch := NewSchema()
 	sch.AddIntField("block")
 	sch.AddIntField("id")
-	if ii.tableSchema.FieldType(ii.fieldName) == record.INTEGER {
+	if ii.tableSchema.FieldType(ii.fieldName) == INTEGER {
 		sch.AddIntField("dataval")
 	} else {
 		fldLen := ii.tableSchema.Length(ii.fieldName)
 		sch.AddStringField("dataval", fldLen)
 	}
-	return record.NewLayout(sch)
+	return NewLayout(sch)
 }

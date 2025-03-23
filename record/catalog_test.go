@@ -1,4 +1,4 @@
-package metadata
+package record
 
 import (
 	"os"
@@ -8,7 +8,6 @@ import (
 	"github.com/nitishsharma2825/simpleDB/buffer"
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -33,7 +32,7 @@ func TestCatalog(t *testing.T) {
 	tcatLayout := tableManager.GetLayout("tblcat", tx)
 
 	t.Logf("Here are all the tables and their lengths.\n")
-	ts := record.NewTableScan(tx, "tblcat", tcatLayout)
+	ts := NewTableScan(tx, "tblcat", tcatLayout)
 	for ts.Next() {
 		tname := ts.GetString("tblname")
 		slotSize := ts.GetInt("slotsize")
@@ -43,7 +42,7 @@ func TestCatalog(t *testing.T) {
 
 	t.Logf("Here are the fields for each table and their offset")
 	fcatLayout := tableManager.GetLayout("fldcat", tx)
-	ts = record.NewTableScan(tx, "fldcat", fcatLayout)
+	ts = NewTableScan(tx, "fldcat", fcatLayout)
 	for ts.Next() {
 		tname := ts.GetString("tblname")
 		fname := ts.GetString("fldname")

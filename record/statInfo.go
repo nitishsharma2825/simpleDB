@@ -1,4 +1,4 @@
-package metadata
+package record
 
 /*
 Holds 3 pieces of information about a table:

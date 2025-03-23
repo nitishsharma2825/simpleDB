@@ -1,4 +1,4 @@
-package metadata
+package record
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 	"github.com/nitishsharma2825/simpleDB/buffer"
 	"github.com/nitishsharma2825/simpleDB/file"
 	"github.com/nitishsharma2825/simpleDB/log"
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -32,7 +31,7 @@ func TestTableManager(t *testing.T) {
 	tx := tx.NewTransaction(fm, lm, bm)
 
 	tableMgr := NewTableManager(true, tx)
-	schema := record.NewSchema()
+	schema := NewSchema()
 	schema.AddIntField("A")
 	schema.AddStringField("B", 9)
 	tableMgr.CreateTable("MyTable", schema, tx)
@@ -46,7 +45,7 @@ func TestTableManager(t *testing.T) {
 
 	for _, fieldName := range schema2.Fields() {
 		var fldType string
-		if schema2.FieldType(fieldName) == record.INTEGER {
+		if schema2.FieldType(fieldName) == INTEGER {
 			fldType = "int"
 		} else {
 			strlen := schema2.Length(fieldName)

@@ -1,9 +1,8 @@
-package index
+package record
 
 import (
 	"fmt"
 
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -19,15 +18,15 @@ const NUM_BUCKETS = 100
 type HashIndex struct {
 	tx        *tx.Transaction
 	indexName string
-	layout    *record.Layout
-	searchKey record.Constant
-	tableScan *record.TableScan
+	layout    *Layout
+	searchKey Constant
+	tableScan *TableScan
 }
 
 /*
 Opens a hash index for the specified index
 */
-func NewHashIndex(tx *tx.Transaction, idxName string, layout *record.Layout) *HashIndex {
+func NewHashIndex(tx *tx.Transaction, idxName string, layout *Layout) *HashIndex {
 	return &HashIndex{
 		tx:        tx,
 		indexName: idxName,
@@ -44,12 +43,12 @@ and then opens a table scan on the file
 corresponding to the bucket.
 The table scan for the previous bucket is closed
 */
-func (hi *HashIndex) BeforeFirst(searchKey record.Constant) {
+func (hi *HashIndex) BeforeFirst(searchKey Constant) {
 	hi.Close()
 	hi.searchKey = searchKey
 	bucket := searchKey.HashCode() % NUM_BUCKETS
 	indexTableName := fmt.Sprintf("%q%d", hi.indexName, bucket)
-	hi.tableScan = record.NewTableScan(hi.tx, indexTableName, hi.layout)
+	hi.tableScan = NewTableScan(hi.tx, indexTableName, hi.layout)
 }
 
 /*
@@ -71,16 +70,16 @@ func (hi *HashIndex) Next() bool {
 Retrieves the dataRID from the current record
 in the table scan for the bucket
 */
-func (hi *HashIndex) GetDataRID() record.RID {
+func (hi *HashIndex) GetDataRID() RID {
 	blockNum := hi.tableScan.GetInt("block")
 	id := hi.tableScan.GetInt("id")
-	return record.NewRID(blockNum, id)
+	return NewRID(blockNum, id)
 }
 
 /*
 Inserts a new record into the table scan for the bucket
 */
-func (hi *HashIndex) Insert(value record.Constant, rid record.RID) {
+func (hi *HashIndex) Insert(value Constant, rid RID) {
 	hi.BeforeFirst(value)
 	hi.tableScan.Insert()
 	hi.tableScan.SetInt("block", rid.BlockNum())
@@ -91,7 +90,7 @@ func (hi *HashIndex) Insert(value record.Constant, rid record.RID) {
 /*
 Deletes the specified record from the table scan for the bucket
 */
-func (hi *HashIndex) Delete(value record.Constant, rid record.RID) {
+func (hi *HashIndex) Delete(value Constant, rid RID) {
 	hi.BeforeFirst(value)
 	for hi.Next() {
 		if hi.GetDataRID() == rid {

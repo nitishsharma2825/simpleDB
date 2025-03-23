@@ -1,7 +1,6 @@
-package metadata
+package record
 
 import (
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -15,24 +14,24 @@ obtain metadata of a previously created table
 */
 type TableManager struct {
 	// store metadata about each table (tblname, slotSize)
-	tcatLayout *record.Layout
+	tcatLayout *Layout
 	// store metadata about each field of each table (tblname, fldName, type, length, offset)
-	fcatLayout *record.Layout
+	fcatLayout *Layout
 }
 
 func NewTableManager(isNew bool, tx *tx.Transaction) *TableManager {
-	tcatSchema := record.NewSchema()
+	tcatSchema := NewSchema()
 	tcatSchema.AddStringField("tblname", MAX_NAME)
 	tcatSchema.AddIntField("slotsize")
-	tcatLayout := record.NewLayout(tcatSchema)
+	tcatLayout := NewLayout(tcatSchema)
 
-	fcatSchema := record.NewSchema()
+	fcatSchema := NewSchema()
 	fcatSchema.AddStringField("tblname", MAX_NAME)
 	fcatSchema.AddStringField("fldname", MAX_NAME)
 	fcatSchema.AddIntField("type")
 	fcatSchema.AddIntField("length")
 	fcatSchema.AddIntField("offset")
-	fcatLayout := record.NewLayout(fcatSchema)
+	fcatLayout := NewLayout(fcatSchema)
 
 	tm := &TableManager{
 		tcatLayout: tcatLayout,
@@ -47,18 +46,18 @@ func NewTableManager(isNew bool, tx *tx.Transaction) *TableManager {
 	return tm
 }
 
-func (tm *TableManager) CreateTable(tblName string, schema *record.Schema, tx *tx.Transaction) {
-	layout := record.NewLayout(schema)
+func (tm *TableManager) CreateTable(tblName string, schema *Schema, tx *tx.Transaction) {
+	layout := NewLayout(schema)
 
 	// insert 1 record into tblcat
-	tcat := record.NewTableScan(tx, "tblcat", tm.tcatLayout)
+	tcat := NewTableScan(tx, "tblcat", tm.tcatLayout)
 	tcat.Insert()
 	tcat.SetString("tblname", tblName)
 	tcat.SetInt("slotsize", layout.SlotSize())
 	tcat.Close()
 
 	// insert 1 record into fldcat for each field
-	fcat := record.NewTableScan(tx, "fldcat", tm.fcatLayout)
+	fcat := NewTableScan(tx, "fldcat", tm.fcatLayout)
 	for _, fieldName := range schema.Fields() {
 		fcat.Insert()
 		fcat.SetString("tblname", tblName)
@@ -70,11 +69,11 @@ func (tm *TableManager) CreateTable(tblName string, schema *record.Schema, tx *t
 	fcat.Close()
 }
 
-func (tm *TableManager) GetLayout(tblname string, tx *tx.Transaction) *record.Layout {
+func (tm *TableManager) GetLayout(tblname string, tx *tx.Transaction) *Layout {
 	size := -1
 
 	// find the table in tcat
-	tcat := record.NewTableScan(tx, "tblcat", tm.tcatLayout)
+	tcat := NewTableScan(tx, "tblcat", tm.tcatLayout)
 	for tcat.Next() {
 		if tcat.GetString("tblname") == tblname {
 			size = tcat.GetInt("slotsize")
@@ -83,9 +82,9 @@ func (tm *TableManager) GetLayout(tblname string, tx *tx.Transaction) *record.La
 	}
 	tcat.Close()
 
-	sch := record.NewSchema()
+	sch := NewSchema()
 	offsets := make(map[string]int)
-	fcat := record.NewTableScan(tx, "fldcat", tm.fcatLayout)
+	fcat := NewTableScan(tx, "fldcat", tm.fcatLayout)
 	for fcat.Next() {
 		if fcat.GetString("tblname") == tblname {
 			fldname := fcat.GetString("fldname")
@@ -97,5 +96,5 @@ func (tm *TableManager) GetLayout(tblname string, tx *tx.Transaction) *record.La
 		}
 	}
 	fcat.Close()
-	return record.NewLayoutWithMetadata(sch, offsets, size)
+	return NewLayoutWithMetadata(sch, offsets, size)
 }

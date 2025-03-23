@@ -1,7 +1,6 @@
-package metadata
+package record
 
 import (
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -26,11 +25,11 @@ func NewMetadataManager(isNew bool, tx *tx.Transaction) *MetadataManager {
 	}
 }
 
-func (mm *MetadataManager) CreateTable(tblname string, schema *record.Schema, tx *tx.Transaction) {
+func (mm *MetadataManager) CreateTable(tblname string, schema *Schema, tx *tx.Transaction) {
 	mm.tableManager.CreateTable(tblname, schema, tx)
 }
 
-func (mm *MetadataManager) GetLayout(tblname string, tx *tx.Transaction) *record.Layout {
+func (mm *MetadataManager) GetLayout(tblname string, tx *tx.Transaction) *Layout {
 	return mm.tableManager.GetLayout(tblname, tx)
 }
 
@@ -50,6 +49,6 @@ func (mm *MetadataManager) GetIndexInfo(tableName string, tx *tx.Transaction) ma
 	return mm.indexManager.GetIndexInfo(tableName, tx)
 }
 
-func (mm *MetadataManager) GetStatInfo(tableName string, layout *record.Layout, tx *tx.Transaction) StatInfo {
+func (mm *MetadataManager) GetStatInfo(tableName string, layout *Layout, tx *tx.Transaction) StatInfo {
 	return mm.statManager.GetStatInfo(tableName, layout, tx)
 }

@@ -1,7 +1,6 @@
-package metadata
+package record
 
 import (
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -14,7 +13,7 @@ type ViewManager struct {
 func NewViewManager(isNew bool, tableManager *TableManager, tx *tx.Transaction) *ViewManager {
 	vm := &ViewManager{tableManager}
 	if isNew {
-		sch := record.NewSchema()
+		sch := NewSchema()
 		sch.AddStringField("viewname", MAX_NAME)
 		sch.AddStringField("viewdef", MAX_VIEWDEF)
 		tableManager.CreateTable("viewcat", sch, tx)
@@ -24,7 +23,7 @@ func NewViewManager(isNew bool, tableManager *TableManager, tx *tx.Transaction) 
 
 func (vm *ViewManager) CreateView(vname string, vdef string, tx *tx.Transaction) {
 	layout := vm.tableManager.GetLayout("viewcat", tx)
-	ts := record.NewTableScan(tx, "viewcat", layout)
+	ts := NewTableScan(tx, "viewcat", layout)
 	ts.Insert()
 	ts.SetString("viewname", vname)
 	ts.SetString("viewdef", vdef)
@@ -34,7 +33,7 @@ func (vm *ViewManager) CreateView(vname string, vdef string, tx *tx.Transaction)
 func (vm *ViewManager) GetViewDef(vname string, tx *tx.Transaction) string {
 	result := ""
 	layout := vm.tableManager.GetLayout("viewcat", tx)
-	ts := record.NewTableScan(tx, "viewcat", layout)
+	ts := NewTableScan(tx, "viewcat", layout)
 	for ts.Next() {
 		if ts.GetString("viewname") == vname {
 			result = ts.GetString("viewdef")

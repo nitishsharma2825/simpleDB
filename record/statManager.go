@@ -1,9 +1,8 @@
-package metadata
+package record
 
 import (
 	"sync"
 
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -32,7 +31,7 @@ func NewStatManager(tm *TableManager, tx *tx.Transaction) *StatManager {
 	return sm
 }
 
-func (sm *StatManager) GetStatInfo(tableName string, layout *record.Layout, tx *tx.Transaction) StatInfo {
+func (sm *StatManager) GetStatInfo(tableName string, layout *Layout, tx *tx.Transaction) StatInfo {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 
@@ -52,7 +51,7 @@ func (sm *StatManager) refreshStatistics(tx *tx.Transaction) {
 	sm.tableStats = make(map[string]StatInfo)
 	sm.numCalls = 0
 	tcatLayout := sm.tableManager.GetLayout("tblcat", tx)
-	tcat := record.NewTableScan(tx, "tblcat", tcatLayout)
+	tcat := NewTableScan(tx, "tblcat", tcatLayout)
 	for tcat.Next() {
 		tableName := tcat.GetString("tblname")
 		layout := sm.tableManager.GetLayout(tableName, tx)
@@ -62,10 +61,10 @@ func (sm *StatManager) refreshStatistics(tx *tx.Transaction) {
 	tcat.Close()
 }
 
-func (sm *StatManager) calculateTableStats(tableName string, layout *record.Layout, tx *tx.Transaction) StatInfo {
+func (sm *StatManager) calculateTableStats(tableName string, layout *Layout, tx *tx.Transaction) StatInfo {
 	numRecs := 0
 	numBlocks := 0
-	ts := record.NewTableScan(tx, tableName, layout)
+	ts := NewTableScan(tx, tableName, layout)
 	for ts.Next() {
 		numRecs++
 		numBlocks = ts.GetRID().BlockNum() + 1

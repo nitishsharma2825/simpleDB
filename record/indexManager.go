@@ -1,7 +1,6 @@
-package metadata
+package record
 
 import (
-	"github.com/nitishsharma2825/simpleDB/record"
 	"github.com/nitishsharma2825/simpleDB/tx"
 )
 
@@ -9,14 +8,14 @@ import (
 Index manager has similar functionality to the table manager
 */
 type IndexManager struct {
-	layout       *record.Layout
+	layout       *Layout
 	tableManager *TableManager
 	statManager  *StatManager
 }
 
 func NewIndexManager(isNew bool, tableManager *TableManager, statManager *StatManager, tx *tx.Transaction) *IndexManager {
 	if isNew {
-		sch := record.NewSchema()
+		sch := NewSchema()
 		sch.AddStringField("indexname", MAX_NAME)
 		sch.AddStringField("tablename", MAX_NAME)
 		sch.AddStringField("fieldname", MAX_NAME)
@@ -35,7 +34,7 @@ Create an index of the specified type for the specified field.
 A unique ID is assigned to this index and its information is stored in "idxcat" table
 */
 func (ii *IndexManager) CreateIndex(indexName string, tableName string, fieldName string, tx *tx.Transaction) {
-	ts := record.NewTableScan(tx, "idxcat", ii.layout)
+	ts := NewTableScan(tx, "idxcat", ii.layout)
 	ts.Insert()
 	ts.SetString("indexname", indexName)
 	ts.SetString("tablename", tableName)
@@ -49,7 +48,7 @@ Map[indexedfield]IndexInfo
 */
 func (ii *IndexManager) GetIndexInfo(tableName string, tx *tx.Transaction) map[string]*IndexInfo {
 	result := make(map[string]*IndexInfo)
-	ts := record.NewTableScan(tx, "idxcat", ii.layout)
+	ts := NewTableScan(tx, "idxcat", ii.layout)
 	for ts.Next() {
 		if ts.GetString("tablename") == tableName {
 			indexName := ts.GetString("indexname")
