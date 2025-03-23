@@ -1,6 +1,9 @@
 package record
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 /*
 A term is a comparison between 2 expression
@@ -32,9 +35,26 @@ Calculate the extent to which selecting on the term reduces
 the number of records output by a query
 For example if the reduction factor is 2, then the term cuts the size of output in half
 */
-// TODO: Implement the Plan first
 func (t Term) ReductionFactor(plan Plan) int {
-	return 0
+	var lhsName, rhsName string
+	if t.lhs.IsFieldName() && t.rhs.IsFieldName() {
+		lhsName = t.lhs.AsFieldName()
+		rhsName = t.rhs.AsFieldName()
+		return max(plan.DistinctValues(lhsName), plan.DistinctValues(rhsName))
+	}
+	if t.lhs.IsFieldName() {
+		lhsName = t.lhs.AsFieldName()
+		return plan.DistinctValues(lhsName)
+	}
+	if t.rhs.IsFieldName() {
+		rhsName = t.rhs.AsFieldName()
+		return plan.DistinctValues(rhsName)
+	}
+	// otherwise term equates constant
+	if t.lhs.AsConstant().Equals(t.rhs.AsConstant()) {
+		return 1
+	}
+	return math.MaxInt
 }
 
 /*
