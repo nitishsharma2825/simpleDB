@@ -62,9 +62,9 @@ func TestScan1(t *testing.T) {
 	fields := []string{"B"}
 	s4 := NewProjectScan(s3, fields)
 	for s4.Next() {
-		val, err := s4.GetString("B")
-		if err != nil {
-			panic(err)
+		val := s4.GetString("B")
+		if val == "" {
+			panic("field not found")
 		}
 		t.Logf("%q\n", val)
 	}

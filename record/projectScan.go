@@ -1,7 +1,6 @@
 package record
 
 import (
-	"errors"
 	"slices"
 )
 
@@ -28,27 +27,27 @@ func (pjs *ProjectScan) Next() bool {
 	return pjs.scan.Next()
 }
 
-func (pjs *ProjectScan) GetInt(fieldName string) (int, error) {
+func (pjs *ProjectScan) GetInt(fieldName string) int {
 	if pjs.HasField(fieldName) {
-		return pjs.scan.GetInt(fieldName), nil
+		return pjs.scan.GetInt(fieldName)
 	} else {
-		return 0, errors.New("field not found")
+		return 0
 	}
 }
 
-func (pjs *ProjectScan) GetString(fieldName string) (string, error) {
+func (pjs *ProjectScan) GetString(fieldName string) string {
 	if pjs.HasField(fieldName) {
-		return pjs.scan.GetString(fieldName), nil
+		return pjs.scan.GetString(fieldName)
 	} else {
-		return "", errors.New("field not found")
+		return ""
 	}
 }
 
-func (pjs *ProjectScan) GetVal(fieldName string) (Constant, error) {
+func (pjs *ProjectScan) GetVal(fieldName string) Constant {
 	if pjs.HasField(fieldName) {
-		return pjs.scan.GetVal(fieldName), nil
+		return pjs.scan.GetVal(fieldName)
 	} else {
-		return NewNilConstant(), errors.New("field not found")
+		return NewNilConstant()
 	}
 }
 
