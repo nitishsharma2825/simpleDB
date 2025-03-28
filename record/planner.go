@@ -40,20 +40,22 @@ func (p *Planner) ExecuteUpdate(cmd string, tx *tx.Transaction) int {
 	if err != nil {
 		panic(err)
 	}
+
+	// fmt.Printf("Reflection - Concrete type: %T\n", data)
 	p.verifyUpdate(data)
 	switch d := data.(type) {
-	case InsertData:
-		return p.uplanner.ExecuteInsert(&d, tx)
-	case DeleteData:
-		return p.uplanner.ExecuteDelete(&d, tx)
-	case ModifyData:
-		return p.uplanner.ExecuteModify(&d, tx)
-	case CreateTableData:
-		return p.uplanner.ExecuteCreateTable(&d, tx)
-	case CreateIndexData:
-		return p.uplanner.ExecuteCreateIndex(&d, tx)
-	case CreateViewData:
-		return p.uplanner.ExecuteCreateView(&d, tx)
+	case *InsertData:
+		return p.uplanner.ExecuteInsert(d, tx)
+	case *DeleteData:
+		return p.uplanner.ExecuteDelete(d, tx)
+	case *ModifyData:
+		return p.uplanner.ExecuteModify(d, tx)
+	case *CreateTableData:
+		return p.uplanner.ExecuteCreateTable(d, tx)
+	case *CreateIndexData:
+		return p.uplanner.ExecuteCreateIndex(d, tx)
+	case *CreateViewData:
+		return p.uplanner.ExecuteCreateView(d, tx)
 	}
 	return 0
 }

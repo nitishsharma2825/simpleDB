@@ -50,7 +50,7 @@ release all locks and unpin any pinned buffers
 */
 func (txn *Transaction) Commit() {
 	txn.rm.Commit()
-	fmt.Printf("transaction %d committed", txn.txnum)
+	fmt.Printf("transaction %d committed\n", txn.txnum)
 	txn.cm.Release()
 	txn.myBuffers.UnPinAll()
 }
@@ -64,7 +64,7 @@ release all locks and unpin any pinned buffers
 */
 func (txn *Transaction) Rollback() {
 	txn.rm.Rollback()
-	fmt.Printf("transaction %d rolled back", txn.txnum)
+	fmt.Printf("transaction %d rolled back\n", txn.txnum)
 	txn.cm.Release()
 	txn.myBuffers.UnPinAll()
 }
