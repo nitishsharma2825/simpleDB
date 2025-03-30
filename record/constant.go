@@ -65,3 +65,27 @@ func (c Constant) HashCode() int {
 	}
 	return int(h.Sum32())
 }
+
+func (c Constant) CompareTo(other Constant) int {
+	if c.ival != nil && other.ival != nil {
+		if *c.ival < *other.ival {
+			return -1
+		} else if *c.ival > *other.ival {
+			return 1
+		} else {
+			return 0
+		}
+	}
+
+	if c.sval != nil && other.sval != nil {
+		if *c.sval < *other.sval {
+			return -1
+		} else if *c.sval > *other.sval {
+			return 1
+		} else {
+			return 0
+		}
+	}
+
+	return 0
+}
