@@ -8,7 +8,7 @@ type Index interface {
 		Positions the index before the 1st record
 		having the specified search key
 	*/
-	BeforeFirst(Constant)
+	BeforeFirst(*Constant)
 
 	/*
 		Moves the index to the next record having the search key
@@ -25,12 +25,12 @@ type Index interface {
 	/*
 		Inserts an index record having the specified dataval and dataRID values
 	*/
-	Insert(Constant, RID)
+	Insert(*Constant, RID)
 
 	/*
 		Deletes the index record having the specified dataval and dataRID values
 	*/
-	Delete(Constant, RID)
+	Delete(*Constant, RID)
 
 	/*
 		Closes the index

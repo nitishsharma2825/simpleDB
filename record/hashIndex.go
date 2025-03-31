@@ -43,9 +43,9 @@ and then opens a table scan on the file
 corresponding to the bucket.
 The table scan for the previous bucket is closed
 */
-func (hi *HashIndex) BeforeFirst(searchKey Constant) {
+func (hi *HashIndex) BeforeFirst(searchKey *Constant) {
 	hi.Close()
-	hi.searchKey = searchKey
+	hi.searchKey = *searchKey
 	bucket := searchKey.HashCode() % NUM_BUCKETS
 	indexTableName := fmt.Sprintf("%q%d", hi.indexName, bucket)
 	hi.tableScan = NewTableScan(hi.tx, indexTableName, hi.layout)
@@ -79,18 +79,18 @@ func (hi *HashIndex) GetDataRID() RID {
 /*
 Inserts a new record into the table scan for the bucket
 */
-func (hi *HashIndex) Insert(value Constant, rid RID) {
+func (hi *HashIndex) Insert(value *Constant, rid RID) {
 	hi.BeforeFirst(value)
 	hi.tableScan.Insert()
 	hi.tableScan.SetInt("block", rid.BlockNum())
 	hi.tableScan.SetInt("id", rid.Slot())
-	hi.tableScan.SetVal("dataval", value)
+	hi.tableScan.SetVal("dataval", *value)
 }
 
 /*
 Deletes the specified record from the table scan for the bucket
 */
-func (hi *HashIndex) Delete(value Constant, rid RID) {
+func (hi *HashIndex) Delete(value *Constant, rid RID) {
 	hi.BeforeFirst(value)
 	for hi.Next() {
 		if hi.GetDataRID() == rid {
@@ -114,6 +114,6 @@ Returns the cost of searching an index file having the specified number of block
 The method assumes that all buckets are about the same size
 so the cost is simply the size of the bucket
 */
-func SearchCost(numBlocks int, recPerBlock int) int {
+func HashIndexSearchCost(numBlocks int, recPerBlock int) int {
 	return numBlocks / NUM_BUCKETS
 }

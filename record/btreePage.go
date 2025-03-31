@@ -265,6 +265,7 @@ func (btpage *BTPage) fieldPos(slot int, fieldname string) int {
 func (btpage *BTPage) slotPos(slot int) int {
 	slotSize := btpage.layout.SlotSize()
 	// Q. why 2 extra int bytes at front?
-	// Ans: 1st 4 bits - flag for inuse/empty, next 4 bits for number of records in this block
+	// Ans: 1st 4 bits - flag, next 4 bits for number of records in this block
+	// directory page uses flag to hold its level and leaf page uses it to point to overflow block
 	return file.IntBytes + file.IntBytes + (slot * slotSize)
 }

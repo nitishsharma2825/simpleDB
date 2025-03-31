@@ -38,7 +38,7 @@ Open the index described by this object
 */
 func (ii *IndexInfo) Open() Index {
 	return NewHashIndex(ii.tx, ii.indexName, ii.indexLayout)
-	// return NewBTreeIndex()
+	// return NewBTreeIndex(ii.tx, ii.indexName, ii.indexLayout)
 }
 
 /*
@@ -52,7 +52,8 @@ which provides the estimate
 func (ii *IndexInfo) BlocksAccessed() int {
 	recPerBlock := ii.tx.BlockSize() / ii.indexLayout.SlotSize()
 	numBlocks := ii.statInfo.RecordsOutput() / recPerBlock
-	return SearchCost(numBlocks, recPerBlock)
+	return HashIndexSearchCost(numBlocks, recPerBlock)
+	// return BTreeSearchCost(numBlocks, recPerBlock)
 }
 
 /*
