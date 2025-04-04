@@ -111,7 +111,7 @@ func (ts *TableScan) Delete() {
 	ts.rp.Delete(ts.currentSlot)
 }
 
-func (ts *TableScan) MoveToRid(rid RID) {
+func (ts *TableScan) MoveToRID(rid RID) {
 	ts.Close()
 	blockId := file.NewBlockID(ts.fileName, rid.BlockNum())
 	ts.rp = NewRecordPage(ts.tx, blockId, ts.layout)

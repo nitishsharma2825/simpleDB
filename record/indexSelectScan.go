@@ -40,7 +40,7 @@ func (iss *IndexSelectScan) Next() bool {
 	ok := iss.idx.Next()
 	if ok {
 		rid := iss.idx.GetDataRID()
-		iss.ts.MoveToRid(rid)
+		iss.ts.MoveToRID(rid)
 	}
 	return ok
 }

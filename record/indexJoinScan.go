@@ -46,7 +46,7 @@ func (ijs *IndexJoinScan) Next() bool {
 	for {
 		if ijs.index.Next() {
 			// move the table scan for right table to this record ID
-			ijs.rhs.MoveToRid(ijs.index.GetDataRID())
+			ijs.rhs.MoveToRID(ijs.index.GetDataRID())
 			return true
 		}
 		if !ijs.lhs.Next() {
