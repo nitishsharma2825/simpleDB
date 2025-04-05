@@ -5,6 +5,10 @@ This interface is implemented by all updateable scans
 */
 type UpdateScan interface {
 	/*
+		Extend the Scan interface
+	*/
+	Scan
+	/*
 		Modify the field value of the current record
 	*/
 	SetVal(string, Constant)
