@@ -55,6 +55,10 @@ func (sp *SortPlan) DistinctValues(fieldName string) int {
 	return sp.plan.DistinctValues(fieldName)
 }
 
+func (sp *SortPlan) Schema() *Schema {
+	return sp.schema
+}
+
 /*
 A temporary table is created for each sorted run
 Returns a list of runs stored in multiple temp tables
