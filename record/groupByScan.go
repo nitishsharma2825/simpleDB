@@ -69,3 +69,44 @@ func (gs *GroupByScan) Next() bool {
 func (gs *GroupByScan) Close() {
 	gs.scan.Close()
 }
+
+/*
+Get constant value of the field.
+If the field is a group field, its value can be obtained from the saved group value
+Otherwise, obtained from aggregate function
+*/
+func (gs *GroupByScan) GetVal(fldName string) Constant {
+	for _, fieldName := range gs.groupFields {
+		if fieldName == fldName {
+			return gs.groupval.GetVal(fieldName)
+		}
+	}
+	for _, fn := range gs.aggfns {
+		if fn.FieldName() == fldName {
+			return fn.Value()
+		}
+	}
+	return NewNilConstant()
+}
+
+func (gs *GroupByScan) GetInt(fldName string) int {
+	return gs.GetVal(fldName).AsInt()
+}
+
+func (gs *GroupByScan) GetString(fldName string) string {
+	return gs.GetVal(fldName).AsString()
+}
+
+func (gs *GroupByScan) HasField(fldName string) bool {
+	for _, fieldName := range gs.groupFields {
+		if fieldName == fldName {
+			return true
+		}
+	}
+	for _, fn := range gs.aggfns {
+		if fn.FieldName() == fldName {
+			return true
+		}
+	}
+	return false
+}

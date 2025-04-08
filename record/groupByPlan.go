@@ -25,6 +25,8 @@ func NewGroupByPlan(tx *tx.Transaction, plan Plan, groupFields []string, aggfns 
 		aggfns:      aggfns,
 		schema:      NewSchema(),
 	}
+
+	// schema contains the group fields and fields on which aggregate functions are created
 	for _, fieldName := range groupFields {
 		p.schema.Add(fieldName, p.plan.Schema())
 	}
@@ -42,4 +44,28 @@ will be appropriately grouped
 func (gp *GroupByPlan) Open() Scan {
 	scan := gp.plan.Open()
 	return NewGroupByScan(scan, gp.groupFields, gp.aggfns)
+}
+
+func (gp *GroupByPlan) BlocksAccessed() int {
+	return gp.plan.BlocksAccessed()
+}
+
+func (gp *GroupByPlan) RecordsOutput() int {
+	numGroups := 1
+	for _, fldName := range gp.groupFields {
+		numGroups = numGroups * gp.plan.DistinctValues(fldName)
+	}
+	return numGroups
+}
+
+func (gp *GroupByPlan) DistinctValues(fieldName string) int {
+	if gp.plan.Schema().HasField(fieldName) {
+		return gp.plan.DistinctValues(fieldName)
+	} else {
+		return gp.RecordsOutput()
+	}
+}
+
+func (gp *GroupByPlan) Schema() *Schema {
+	return gp.schema
 }
