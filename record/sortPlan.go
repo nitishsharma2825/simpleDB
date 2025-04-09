@@ -63,6 +63,14 @@ func (sp *SortPlan) Schema() *Schema {
 A temporary table is created for each sorted run
 Returns a list of runs stored in multiple temp tables
 */
+
+/*
+For MultiBuffer sort,
+1. Get the no of blocks of underlying table: size = blocksAccessed()
+2. Get the no of available buffers: availBuffers = tx.availableBuffs()
+3. Pin as many buffers as required: numBuffs = BufferNeeds.BestRoot(availBuffers, size)
+4. Sort the buffers using an internal sort algo (quicksort) and write to a temp file
+*/
 func (sp *SortPlan) splitIntoRuns(sourceScan Scan) []*TempTable {
 	temps := make([]*TempTable, 0)
 	sourceScan.BeforeFirst()
@@ -86,6 +94,11 @@ func (sp *SortPlan) splitIntoRuns(sourceScan Scan) []*TempTable {
 	return temps
 }
 
+/*
+For MultiBuffer sort,
+1. Remove K temp tables from runlist, k is the root of the initial runs
+2. Merge the K runs into a single run
+*/
 func (sp *SortPlan) doMergeIterations(runs []*TempTable) []*TempTable {
 	result := make([]*TempTable, 0)
 	for len(runs) > 1 {
