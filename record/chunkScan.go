@@ -24,7 +24,7 @@ type ChunkScan struct {
 /*
 Create a chunk consisting of the specified pages
 */
-func (cs *ChunkScan) NewChunkScan(tx *tx.Transaction, fileName string, layout *Layout, startBlockNum, endBlockNum int) *ChunkScan {
+func NewChunkScan(tx *tx.Transaction, fileName string, layout *Layout, startBlockNum, endBlockNum int) *ChunkScan {
 	scan := &ChunkScan{
 		tx:            tx,
 		fileName:      fileName,
