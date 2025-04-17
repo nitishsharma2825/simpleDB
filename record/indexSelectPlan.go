@@ -30,14 +30,14 @@ Estimates the number of block accesses to compute the index selection,
 which is the same as traversal cost + number of matching data records
 */
 func (isp *IndexSelectPlan) BlocksAccessed() int {
-	return isp.ii.BlocksAccessed() + isp.RecordsOputput()
+	return isp.ii.BlocksAccessed() + isp.RecordsOutput()
 }
 
 /*
 Estimates the number of output records in the index selection
 which is the same as number of search key values
 */
-func (isp *IndexSelectPlan) RecordsOputput() int {
+func (isp *IndexSelectPlan) RecordsOutput() int {
 	return isp.ii.RecordsOutput()
 }
 
